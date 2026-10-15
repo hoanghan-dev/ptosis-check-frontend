@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* RemiCare Brand Guidelines Color Palette */
+  --color-mint: #00AB9B;         /* Brand Primary */
+  --color-deep-teal: #00545D;    /* Primary Dark / Text */
+  --color-warm-white: #F9F8F2;   /* Main Background */
+
+  --color-soft-mint: #B8E8DF;    /* Border / Secondary UI */
+  --color-pale-teal: #E1F4F0;    /* Card / Section Surface */
+  --color-deep-green: #267A78;   /* Interactive Hover / Muted Text */
+
+  --color-coral: #F28C7B;        /* Highlight / Alert CTA */
+  --color-amber: #F2C66D;        /* Badge / Warning / Accent */
+
+  --bg-main: var(--color-warm-white);
+  --text-main: var(--color-deep-teal);
+  --text-muted: var(--color-deep-green);
+  --border-main: var(--color-soft-mint);
+  --card-bg: #FFFFFF;
+}
+
+.dark {
+  --bg-main: #071619;
+  --text-main: var(--color-warm-white);
+  --text-muted: #6FB4AF;
+  --border-main: #1A3F45;
+  --card-bg: #0D2327;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+::selection {
+  background-color: var(--color-mint);
+  color: var(--color-warm-white);
+}
+
+/* Custom scrollbar matching RemiCare styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-pale-teal);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #071619;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-soft-mint);
+  border-radius: 9999px;
+  border: 2px solid var(--color-pale-teal);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1A3F45;
+  border: 2px solid #071619;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mint);
+}
