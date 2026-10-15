@@ -90,13 +90,13 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
       case 'PHYSIOLOGICAL_SYMMETRY':
         return (
           <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
-            Đối xứng sinh lý (≤ 1.0 mm)
+            Đối xứng sinh lý (≤ 1.5 mm)
           </span>
         );
       case 'BORDERLINE_ASYMMETRY':
         return (
           <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-semibold">
-            Bất đối xứng ranh giới (1.0 - 2.0 mm)
+            Bất đối xứng ranh giới (1.5 - 2.0 mm)
           </span>
         );
       default:
