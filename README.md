@@ -52,11 +52,11 @@ Giao diện Web tương tác chất lượng cao phục vụ **Sàng lọc Hình
 
 | Chỉ số | Tên đầy đủ | Giải thích chi tiết | Đơn vị tính |
 | :---: | :--- | :--- | :---: |
-| **MRD1** | Margin Reflex Distance 1 | Khoảng cách từ tâm phản xạ giác mạc Purkinje ($R_1$) lên bờ mi trên. Thước đo chủ đạo để đánh giá độ cao mi mắt. | $\text{mm}$ (kèm khoảng dung sai $\pm 0.5\text{ mm}$) |
-| **MRD2** | Margin Reflex Distance 2 | Khoảng cách từ tâm phản xạ giác mạc Purkinje ($R_1$) xuống bờ mi dưới. | $\text{mm}$ |
-| **PFD / PFH** | Palpebral Fissure Height | Độ mở khe mi toàn phần theo chiều thẳng đứng ($PFD = MRD1 + MRD2$). | $\text{mm}$ |
-| **$\Delta MRD1$** | Bilateral Asymmetry | Độ chênh lệch tuyệt đối giữa hai bên mắt: $\Delta MRD1 = \|MRD1_{\text{OS}} - MRD1_{\text{OD}}\|$. Chỉ số quan trọng nhất để phát hiện bất đối xứng. | $\text{mm}$ |
-| **$\Delta Brow$** | Eyebrow Height Discrepancy | Độ chênh lệch vị trí cung mày hai bên; giúp nhận diện phản xạ nhướng mày / co cơ trán nâng mi bù trừ vô thức. | $\text{pixels}$ |
+| **MRD1** | Margin Reflex Distance 1 | Khoảng cách từ tâm phản xạ giác mạc Purkinje ($R_1$) lên bờ mi trên. Thước đo chủ đạo để đánh giá độ cao mi mắt. | mm (kèm dung sai ±0.5 mm) |
+| **MRD2** | Margin Reflex Distance 2 | Khoảng cách từ tâm phản xạ giác mạc Purkinje ($R_1$) xuống bờ mi dưới. | mm |
+| **PFD / PFH** | Palpebral Fissure Height | Độ mở khe mi toàn phần theo chiều thẳng đứng ($PFD = MRD1 + MRD2$). | mm |
+| **$\Delta MRD1$** | Bilateral Asymmetry | Độ chênh lệch tuyệt đối giữa hai bên mắt: $\Delta MRD1 = \lvert MRD1_{\text{OS}} - MRD1_{\text{OD}} \rvert$. Chỉ số quan trọng nhất để phát hiện bất đối xứng. | mm |
+| **$\Delta Brow$** | Eyebrow Height Discrepancy | Độ chênh lệch vị trí cung mày hai bên; giúp nhận diện phản xạ nhướng mày / co cơ trán nâng mi bù trừ vô thức. | pixels |
 
 ---
 
@@ -64,10 +64,10 @@ Giao diện Web tương tác chất lượng cao phục vụ **Sàng lọc Hình
 
 Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/Documents/FPT_Education/FA26/EXE101/New/PtosisCheck-1.1/frontend/src/components/result/MeasurementDetails.tsx)), độ bất đối xứng được phân loại và hiển thị bằng các huy hiệu màu sắc trực quan:
 
-- **Huy hiệu Xanh lục (`Đối xứng sinh lý (≤ 1.0 mm)`):**
-  - Độ chênh lệch $\Delta MRD1 \le 1.0\text{ mm}$. Hai mắt cân đối về mặt giải phẫu tự nhiên.
-- **Huy hiệu Vàng hổ phách (`Bất đối xứng ranh giới (1.0 - 2.0 mm)`):**
-  - Độ chênh lệch nằm trong khoảng $1.0\text{ mm} < \Delta MRD1 \le 2.0\text{ mm}$. Có sự khác biệt nhẹ giữa hai bên mi mắt; hệ thống đề xuất người dùng lưu ý theo dõi thêm.
+- **Huy hiệu Xanh lục (`Đối xứng sinh lý (≤ 1.5 mm)`):**
+  - Độ chênh lệch $\Delta MRD1 \le 1.5\text{ mm}$. Hai mắt cân đối về mặt giải phẫu tự nhiên.
+- **Huy hiệu Vàng hổ phách (`Bất đối xứng ranh giới (1.5 - 2.0 mm)`):**
+  - Độ chênh lệch nằm trong khoảng $1.5\text{ mm} < \Delta MRD1 \le 2.0\text{ mm}$. Có sự khác biệt nhẹ giữa hai bên mi mắt; hệ thống đề xuất người dùng lưu ý theo dõi thêm.
 - **Huy hiệu Đỏ hoa hồng (`Bất đối xứng đáng chú ý (> 2.0 mm)`):**
   - Độ chênh lệch **vượt quá $2.0\text{ mm}$**. Hai mắt có sự chênh lệch rõ rệt; hệ thống kích hoạt **cảnh báo cần sớm thăm khám chuyên khoa (Mức C)** để kiểm tra chi tiết.
 
@@ -80,8 +80,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 │ MỨC A: KHÔNG PHÁT HIỆN BẤT THƯỜNG (Tier A - Xanh ngọc)                 │
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Hai mắt có độ mở cân đối hoặc thuộc dáng mắt hẹp sinh lý Á Đông.     │
-│ • MRD1 ≥ 2.5 mm VÀ ΔMRD1 ≤ 1.0 mm VÀ ΔBrow ≤ 8 px;                    │
-│   HOẶC ΔMRD1 ≤ 0.5 mm VÀ min(MRD1) ≥ 2.0 mm.                           │
+│ • ΔMRD1 ≤ 1.5 mm VÀ min(MRD1) ≥ 1.0 mm VÀ ΔBrow ≤ 8 px.                 │
 │ ➜ Khuyến nghị: Chưa ghi nhận dấu hiệu cần can thiệp. Theo dõi định kỳ.  │
 └────────────────────────────────────────────────────────────────────────┘
 
@@ -89,9 +88,8 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 │ MỨC B: DẤU HIỆU NGHI NGỜ / RANH GIỚI (Tier B - Vàng hổ phách)          │
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Ghi nhận độ cao mi ở mức ranh giới hoặc có chênh lệch nhẹ hai mắt.  │
-│ • 1.0 mm < ΔMRD1 ≤ 2.0 mm;                                             │
-│   HOẶC ΔBrow > 8 px (nghi ngờ co cơ trán nâng mi bù trừ);              │
-│   HOẶC độ mở mi hơi thấp cả hai bên (1.8 mm ≤ min(MRD1) < 2.0 mm).     │
+│ • 1.5 mm < ΔMRD1 ≤ 2.0 mm;                                             │
+│   HOẶC ΔBrow > 8 px (nghi ngờ co cơ trán nâng mi bù trừ).              │
 │ ➜ Khuyến nghị: Tự theo dõi thêm qua ảnh chụp và cân nhắc thăm khám.     │
 └────────────────────────────────────────────────────────────────────────┘
 
@@ -100,8 +98,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Bờ mi che phủ đáng kể trục thị giác hoặc bất đối xứng rõ rệt.        │
 │ • ΔMRD1 > 2.0 mm (Bất đối xứng rõ rệt vượt ngưỡng an toàn);            │
-│   HOẶC min(MRD1) < 1.5 mm (Che lấp nghiêm trọng trục thị giác);        │
-│   HOẶC cả hai mắt có MRD1 < 1.8 mm;                                    │
+│   HOẶC NGOẠI LỆ: min(MRD1) < 1.0 mm (kể cả khi ΔMRD1 ≈ 0);             │
 │   HOẶC bờ mi che lấp hoàn toàn phản quang giác mạc Purkinje.          │
 │ ➜ Khuyến nghị: Sớm đến cơ sở y tế chuyên khoa mắt để được thăm khám.   │
 └────────────────────────────────────────────────────────────────────────┘
