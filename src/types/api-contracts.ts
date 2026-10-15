@@ -64,6 +64,10 @@ export interface SingleEyeMeasurement {
   status: MeasurementStatus;
   confidence_score: number;
   warning_flags: string[];
+  // Các trường mở rộng từ V2 (Optional - tương thích ngược G5)
+  glint_aspect_ratio?: number | null;
+  pupil_diameter_px?: number | null;
+  fallback_type?: 'NONE' | 'PUPIL_DETECTOR' | 'IRIS_CENTER' | null;
 }
 
 export interface MeasurementsContainer {
