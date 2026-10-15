@@ -60,14 +60,20 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             Phương thức cung cấp ảnh
           </span>
 
-          <button
-            type="button"
-            onClick={() => setIsCameraOpen(true)}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-[#E1F4F0] dark:bg-[#122D32] hover:bg-[#B8E8DF] dark:hover:bg-[#163940] text-[#00545D] dark:text-[#F9F8F2] text-xs font-semibold border border-[#B8E8DF] dark:border-[#1A3F45] transition cursor-pointer"
-          >
-            <Video className="w-3.5 h-3.5 text-[#00AB9B]" />
-            <span>Mở Camera chụp trực tiếp</span>
-          </button>
+          <div className="relative group">
+            <button
+              type="button"
+              disabled
+              className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-[#E1F4F0]/40 dark:bg-[#122D32]/40 text-[#267A78]/60 dark:text-[#6FB4AF]/50 text-xs font-semibold border border-[#B8E8DF]/50 dark:border-[#1A3F45]/50 cursor-not-allowed select-none"
+              title="Tính năng chụp ảnh trực tiếp qua camera đang được tối ưu hóa đa khung hình (Sắp ra mắt)"
+            >
+              <Video className="w-3.5 h-3.5 text-[#267A78]/50" />
+              <span>Chụp trực tiếp</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#F2C66D]/20 text-[#00545D] dark:text-[#F2C66D] border border-[#F2C66D]/50">
+                Coming Soon
+              </span>
+            </button>
+          </div>
         </div>
 
         <FileUploadZone

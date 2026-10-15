@@ -216,6 +216,13 @@ export const AnnotatedCanvas: React.FC<AnnotatedCanvasProps> = ({
           <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] border border-white inline-block" />
           <span>Phản quang Purkinje</span>
         </div>
+        {(measurements.right_eye_od.reference_point_used === 'PUPIL_CENTER_FALLBACK' ||
+          measurements.left_eye_os.reference_point_used === 'PUPIL_CENTER_FALLBACK') && (
+          <div className="flex items-center space-x-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] border border-white inline-block" />
+            <span>Mốc dự phòng (Đồng tử / Mống mắt)</span>
+          </div>
+        )}
         <div className="flex items-center space-x-1.5">
           <span className="w-3 h-0.5 bg-[#F59E0B] inline-block" />
           <span>Đoạn đo MRD1</span>

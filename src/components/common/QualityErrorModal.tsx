@@ -84,6 +84,39 @@ export const QualityErrorModal: React.FC<QualityErrorModalProps> = ({
             text: 'Thả lỏng cơ mặt, tránh chớp mắt hoặc nheo mi khi bấm chụp.',
           },
         ];
+      case 'OCULAR_REGION_TOUCHES_IMAGE_EDGE':
+        return [
+          {
+            icon: Camera,
+            text: 'Căn chỉnh khuôn mặt vào chính giữa khung hình, cách đều các cạnh.',
+          },
+          {
+            icon: Eye,
+            text: 'Đảm bảo trọn vẹn cả hai mắt và lông mày không bị che khuất hoặc sát viền ảnh.',
+          },
+        ];
+      case 'REFLEX_GLARE_ARTIFACT':
+        return [
+          {
+            icon: Sun,
+            text: 'Tránh chụp dưới đèn tuýp LED hoặc nguồn sáng dài gây vệt lóa trên mắt.',
+          },
+          {
+            icon: AlertTriangle,
+            text: 'Chuyển hướng nhìn lệch nhẹ khỏi nguồn sáng chói trực tiếp và chụp lại.',
+          },
+        ];
+      case 'REFLEX_AMBIGUOUS_CLUSTER':
+        return [
+          {
+            icon: Sun,
+            text: 'Tắt bớt nguồn sáng phụ hoặc đèn chùm gây hiện tượng phản xạ kép trên giác mạc.',
+          },
+          {
+            icon: CheckCircle2,
+            text: 'Ưu tiên một nguồn sáng chính duy nhất từ phía trước mặt.',
+          },
+        ];
       case 'LOW_RESOLUTION':
       default:
         return [
@@ -101,6 +134,12 @@ export const QualityErrorModal: React.FC<QualityErrorModalProps> = ({
 
   const getSpecificTitle = (reason: string) => {
     switch (reason) {
+      case 'OCULAR_REGION_TOUCHES_IMAGE_EDGE':
+        return 'Mắt Bị Sát Viền Ảnh - Vui Lòng Căn Giữa';
+      case 'REFLEX_GLARE_ARTIFACT':
+        return 'Mống Mắt Có Vệt Lóa Dài - Vui Lòng Chụp Lại';
+      case 'REFLEX_AMBIGUOUS_CLUSTER':
+        return 'Nhiều Đốm Sáng Gây Nhiễu - Vui Lòng Đổi Góc Sáng';
       case 'BLUR_DETECTED':
         return 'Ảnh Bị Mờ Nhòe - Vui Lòng Chụp Lại';
       case 'HEAD_ROLL_EXCEEDED':

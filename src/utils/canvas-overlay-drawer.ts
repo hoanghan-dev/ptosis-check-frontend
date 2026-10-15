@@ -149,19 +149,23 @@ function drawSingleEyeOverlay(
     ctx.restore();
   }
 
-  // 4. Vẽ đốm phản quang Purkinje / Tâm đồng tử - Chấm tròn đỏ (#EF4444)
+  // 4. Vẽ đốm phản quang Purkinje hoặc Điểm mốc dự phòng
   const reflexPt = eye.corneal_reflex;
   if (options.showCornealReflex && reflexPt) {
+    const isFallback = measurement.reference_point_used === 'PUPIL_CENTER_FALLBACK';
+    const mainColor = isFallback ? '#F97316' : '#EF4444'; // Cam hổ phách khi dự phòng, Đỏ khi có phản quang
+    const glowColor = isFallback ? 'rgba(249, 115, 22, 0.35)' : 'rgba(239, 68, 68, 0.3)';
+
     ctx.save();
     // Vòng phát sáng ngoại vi
     ctx.beginPath();
-    ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+    ctx.fillStyle = glowColor;
     ctx.arc(reflexPt[0], reflexPt[1], 5.5 * scale, 0, Math.PI * 2);
     ctx.fill();
 
-    // Điểm tâm đỏ sắc nét
+    // Điểm tâm sắc nét
     ctx.beginPath();
-    ctx.fillStyle = '#EF4444';
+    ctx.fillStyle = mainColor;
     ctx.arc(reflexPt[0], reflexPt[1], 2.5 * scale, 0, Math.PI * 2);
     ctx.fill();
 
