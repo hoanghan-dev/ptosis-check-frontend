@@ -80,7 +80,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 │ MỨC A: KHÔNG PHÁT HIỆN BẤT THƯỜNG (Tier A - Xanh ngọc)                 │
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Hai mắt có độ mở cân đối hoặc thuộc dáng mắt hẹp sinh lý Á Đông.     │
-│ • ΔMRD1 ≤ 1.5 mm VÀ min(MRD1) ≥ 1.0 mm VÀ ΔBrow ≤ 8 px.                 │
+│ • ΔMRD1 ≤ 1.5 mm VÀ min(MRD1) > 0 mm VÀ ΔBrow ≤ 8 px.                 │
 │ ➜ Khuyến nghị: Chưa ghi nhận dấu hiệu cần can thiệp. Theo dõi định kỳ.  │
 └────────────────────────────────────────────────────────────────────────┘
 
@@ -98,7 +98,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Bờ mi che phủ đáng kể trục thị giác hoặc bất đối xứng rõ rệt.        │
 │ • ΔMRD1 > 2.0 mm (Bất đối xứng rõ rệt vượt ngưỡng an toàn);            │
-│   HOẶC NGOẠI LỆ: min(MRD1) < 1.0 mm (kể cả khi ΔMRD1 ≈ 0);             │
+│   HOẶC NGOẠI LỆ: min(MRD1) ≤ 0 mm (kể cả khi ΔMRD1 ≈ 0);              │
 │   HOẶC bờ mi che lấp hoàn toàn phản quang giác mạc Purkinje.          │
 │ ➜ Khuyến nghị: Sớm đến cơ sở y tế chuyên khoa mắt để được thăm khám.   │
 └────────────────────────────────────────────────────────────────────────┘
