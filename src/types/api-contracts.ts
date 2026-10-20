@@ -4,6 +4,8 @@
  * Tuân thủ tuyệt đối G4: Không dùng từ ngữ thuộc danh mục cấm.
  */
 
+export type ImageType = 'fullface' | 'eye_crop';
+
 export type ScreeningTier = 'TIER_A' | 'TIER_B' | 'TIER_C';
 
 export type AsymmetryClassification =

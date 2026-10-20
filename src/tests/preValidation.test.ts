@@ -46,4 +46,55 @@ describe('validateImageFile Client Pre-validation Tests', () => {
     expect(result.isValid).toBe(true);
     expect(result.errorMessage).toBeNull();
   });
+
+  it('TC-1.6: chấp thuận ảnh eye_crop 15KB hợp lệ', () => {
+    const file = new File([new Uint8Array(15 * 1024)], 'crop_15kb.jpg', {
+      type: 'image/jpeg',
+    });
+    const result = validateImageFile(file, 'eye_crop');
+    expect(result.isValid).toBe(true);
+    expect(result.errorMessage).toBeNull();
+  });
+
+  it('TC-1.7: chấp thuận ảnh eye_crop đúng ngưỡng biên 10KB', () => {
+    const file = new File([new Uint8Array(10 * 1024)], 'crop_10kb.jpg', {
+      type: 'image/jpeg',
+    });
+    const result = validateImageFile(file, 'eye_crop');
+    expect(result.isValid).toBe(true);
+    expect(result.errorMessage).toBeNull();
+  });
+
+  it('TC-1.8: từ chối ảnh eye_crop < 10KB (ví dụ: 8KB)', () => {
+    const file = new File([new Uint8Array(8 * 1024)], 'crop_8kb.jpg', {
+      type: 'image/jpeg',
+    });
+    const result = validateImageFile(file, 'eye_crop');
+    expect(result.isValid).toBe(false);
+    expect(result.errorMessage).toContain('quá nhỏ (< 10KB)');
+  });
+
+  it('TC-1.9: từ chối ảnh eye_crop > 15MB', () => {
+    const file = new File([new Uint8Array(16 * 1024 * 1024)], 'crop_huge.jpg', {
+      type: 'image/jpeg',
+    });
+    const result = validateImageFile(file, 'eye_crop');
+    expect(result.isValid).toBe(false);
+    expect(result.errorMessage).toContain('vượt quá giới hạn 15MB');
+  });
+
+  it('TC-1.10: ảnh 15KB bị từ chối ở fullface (< 50KB) nhưng được chấp thuận ở eye_crop (>= 10KB)', () => {
+    const file = new File([new Uint8Array(15 * 1024)], 'comparison_15kb.jpg', {
+      type: 'image/jpeg',
+    });
+    // Chế độ fullface mặc định: từ chối
+    const fullfaceResult = validateImageFile(file, 'fullface');
+    expect(fullfaceResult.isValid).toBe(false);
+    expect(fullfaceResult.errorMessage).toContain('quá nhỏ (< 50KB)');
+
+    // Chế độ eye_crop: chấp thuận
+    const eyeCropResult = validateImageFile(file, 'eye_crop');
+    expect(eyeCropResult.isValid).toBe(true);
+    expect(eyeCropResult.errorMessage).toBeNull();
+  });
 });
