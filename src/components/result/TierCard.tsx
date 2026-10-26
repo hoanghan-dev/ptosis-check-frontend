@@ -23,7 +23,11 @@ interface TierCardProps {
 }
 
 export const TierCard: React.FC<TierCardProps> = ({ triage }) => {
-  const { tier, description_vi, recommendation_vi, is_bilateral_severe_triggered, flags } = triage;
+  const { tier, description_vi, recommendation_vi, is_bilateral_severe_triggered, flags, trigger_reasons } = triage;
+
+  const isIndeterminate =
+    trigger_reasons?.includes('REFLEX_NOT_VISIBLE_INDETERMINATE_QUALITY') ||
+    trigger_reasons?.includes('INDETERMINATE_IMAGE_QUALITY');
 
   // Cấu hình giao diện theo từng mức phân tầng
   const config = {
@@ -38,8 +42,12 @@ export const TierCard: React.FC<TierCardProps> = ({ triage }) => {
       accentColor: 'text-emerald-700 dark:text-emerald-300',
     },
     TIER_B: {
-      badge: 'Mức B • Dấu hiệu nghi ngờ / Cần theo dõi',
-      title: 'Ghi nhận Dấu hiệu Ranh giới hoặc Chênh lệch Nhẹ',
+      badge: isIndeterminate
+        ? 'Mức B • Chưa xác định / Cần chụp lại'
+        : 'Mức B • Dấu hiệu nghi ngờ / Cần theo dõi',
+      title: isIndeterminate
+        ? 'Chưa Xác định Do Điều kiện Ánh sáng'
+        : 'Ghi nhận Dấu hiệu Ranh giới hoặc Chênh lệch Nhẹ',
       bgCard: 'bg-amber-500/10 dark:bg-amber-950/30',
       borderCard: 'border-amber-500/30 dark:border-amber-500/40',
       badgeBg: 'bg-amber-500/20 text-amber-900 dark:text-amber-300 border-amber-500/40',
@@ -104,12 +112,28 @@ export const TierCard: React.FC<TierCardProps> = ({ triage }) => {
         </div>
 
         {/* Các cờ an toàn bổ trợ đặc biệt */}
-        {(is_bilateral_severe_triggered || flags?.is_brow_compensation_detected || flags?.is_pupil_fallback_used) && (
+        {(is_bilateral_severe_triggered ||
+          flags?.is_brow_compensation_detected ||
+          flags?.is_pupil_fallback_used ||
+          isIndeterminate ||
+          trigger_reasons?.includes('REFLEX_OCCLUDED_SEVERE')) && (
           <div className="flex flex-wrap gap-2 pt-1">
             {is_bilateral_severe_triggered && (
               <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-medium">
                 <AlertOctagon className="w-3.5 h-3.5" />
                 <span>Kích hoạt chốt chặn an toàn: Cả hai mắt có độ mở mi hẹp</span>
+              </span>
+            )}
+            {trigger_reasons?.includes('REFLEX_OCCLUDED_SEVERE') && (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-medium">
+                <AlertOctagon className="w-3.5 h-3.5" />
+                <span>Nghi ngờ bờ mi che phủ trục thị giác</span>
+              </span>
+            )}
+            {isIndeterminate && (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-xs font-medium">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Chưa xác định do chất lượng ảnh • Khuyến nghị chụp lại có flash</span>
               </span>
             )}
             {flags?.is_brow_compensation_detected && (

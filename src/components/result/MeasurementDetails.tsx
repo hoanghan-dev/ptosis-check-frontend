@@ -59,6 +59,9 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
     if (eye.reference_point_used === 'CORNEAL_LIGHT_REFLEX') {
       return 'Phản quang giác mạc Purkinje';
     }
+    if (eye.reference_point_used === 'NONE') {
+      return 'Không có mốc hợp lệ';
+    }
     if (eye.fallback_type === 'PUPIL_DETECTOR') {
       return 'Tâm đồng tử dự phòng (OpenCV)';
     }
@@ -68,7 +71,42 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
     return 'Tâm đồng tử dự phòng';
   };
 
-  const getStatusBadge = (status: string, confidence: number) => {
+  const getStatusBadge = (singleEye: SingleEyeMeasurement) => {
+    const { status, confidence_score: confidence, reflex_visibility, warning_flags, mrd1_mm } = singleEye;
+    const isOccluded =
+      reflex_visibility === 'OCCLUDED_BY_LID' ||
+      warning_flags?.includes('REFLEX_OCCLUDED_BY_UPPER_LID') ||
+      warning_flags?.includes('REFLEX_OCCLUDED_BY_LID') ||
+      warning_flags?.includes('ANATOMICAL_NEGATIVE_SUSPECTED');
+    const isQualityIssue =
+      reflex_visibility === 'NOT_VISIBLE_QUALITY' ||
+      warning_flags?.includes('REFLEX_NOT_VISIBLE_QUALITY') ||
+      warning_flags?.includes('IMAGE_UNDEREXPOSED_OR_DIFFUSE');
+
+    if (status === 'MEASUREMENT_UNAVAILABLE' || mrd1_mm === null) {
+      if (isOccluded) {
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-800 dark:text-rose-300 text-[11px] font-semibold">
+            <AlertCircle className="w-3 h-3" />
+            <span>Không thể đo (Che phủ bờ mi)</span>
+          </span>
+        );
+      }
+      if (isQualityIssue) {
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-semibold">
+            <AlertCircle className="w-3 h-3" />
+            <span>Không thể đo (Thiếu sáng)</span>
+          </span>
+        );
+      }
+      return (
+        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-800 dark:text-rose-300 text-[11px] font-semibold">
+          <AlertCircle className="w-3 h-3" />
+          <span>Không khả dụng</span>
+        </span>
+      );
+    }
     if (status === 'VALID') {
       return (
         <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
@@ -143,16 +181,18 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
             <div className="p-4 rounded-xl bg-[#E1F4F0]/40 dark:bg-[#122D32]/40 border border-[#B8E8DF] dark:border-[#1A3F45] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-sm text-[#00545D] dark:text-[#F9F8F2]">Mắt Phải (OD)</span>
-                {getStatusBadge(od.status, od.confidence_score)}
+                {getStatusBadge(od)}
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <div className="p-2.5 rounded-lg bg-white dark:bg-[#071619] border border-black/5 dark:border-white/5">
                   <div className="text-[#267A78] dark:text-[#6FB4AF] text-[11px]">Khoảng MRD1 ước lượng</div>
                   <div className="text-base font-bold text-[#00545D] dark:text-[#F9F8F2] mt-0.5">
-                    {od.mrd1_estimated_range}
+                    {od.mrd1_estimated_range || '--'}
                   </div>
-                  <div className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">Chỉ số: {od.mrd1_mm.toFixed(2)} mm</div>
+                  <div className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">
+                    Chỉ số: {od.mrd1_mm !== null && od.mrd1_mm !== undefined ? `${od.mrd1_mm.toFixed(2)} mm` : '--'}
+                  </div>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-white dark:bg-[#071619] border border-black/5 dark:border-white/5">
@@ -185,16 +225,18 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
             <div className="p-4 rounded-xl bg-[#E1F4F0]/40 dark:bg-[#122D32]/40 border border-[#B8E8DF] dark:border-[#1A3F45] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-sm text-[#00545D] dark:text-[#F9F8F2]">Mắt Trái (OS)</span>
-                {getStatusBadge(os.status, os.confidence_score)}
+                {getStatusBadge(os)}
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <div className="p-2.5 rounded-lg bg-white dark:bg-[#071619] border border-black/5 dark:border-white/5">
                   <div className="text-[#267A78] dark:text-[#6FB4AF] text-[11px]">Khoảng MRD1 ước lượng</div>
                   <div className="text-base font-bold text-[#00545D] dark:text-[#F9F8F2] mt-0.5">
-                    {os.mrd1_estimated_range}
+                    {os.mrd1_estimated_range || '--'}
                   </div>
-                  <div className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">Chỉ số: {os.mrd1_mm.toFixed(2)} mm</div>
+                  <div className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">
+                    Chỉ số: {os.mrd1_mm !== null && os.mrd1_mm !== undefined ? `${os.mrd1_mm.toFixed(2)} mm` : '--'}
+                  </div>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-white dark:bg-[#071619] border border-black/5 dark:border-white/5">
@@ -235,7 +277,9 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
               <div className="p-3 rounded-lg bg-[#E1F4F0]/30 dark:bg-[#122D32]/30 border border-black/5 dark:border-white/5">
                 <div className="text-[11px] text-[#267A78] dark:text-[#6FB4AF]">Chênh lệch |ΔMRD1|</div>
                 <div className="text-lg font-bold text-[#00545D] dark:text-[#F9F8F2] mt-0.5">
-                  {bilateral_comparison.delta_mrd1_mm.toFixed(2)} mm
+                  {bilateral_comparison.delta_mrd1_mm !== null && bilateral_comparison.delta_mrd1_mm !== undefined
+                    ? `${bilateral_comparison.delta_mrd1_mm.toFixed(2)} mm`
+                    : '--'}
                 </div>
                 <div className="mt-1">{getAsymmetryBadge(bilateral_comparison.asymmetry_classification)}</div>
               </div>
