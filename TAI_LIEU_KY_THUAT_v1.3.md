@@ -56,32 +56,54 @@ flowchart LR
 
 ---
 
-### 2.3 Tiêu chuẩn phân tầng nguy cơ Sụp mi (Tiers)
+### 2.3 Tiêu chuẩn phân tầng nguy cơ Sụp mi (Asymmetry-First Tiers)
 
-- **TIER_A (Bình thường - Xanh lục):** $\text{MRD1} \ge 2.5\text{ mm}$, chênh lệch 2 mắt $\le 1.0\text{ mm}$, chân mày cân đối. Mi mắt không che khuất đồng tử.
-- **TIER_B (Nghi ngờ sụp mi nhẹ / Bất đối xứng - Vàng cam):** $\text{MRD1}$ trong khoảng $2.0 - 2.5\text{ mm}$, hoặc chân mày một bên rướn cao $> 8\text{ px}$ (phản xạ bù trừ của cơ trán). Khuyến nghị theo dõi thêm.
-- **TIER_C (Nguy cơ cao - Đỏ san hô):** $\text{MRD1} < 2.0\text{ mm}$ (dưới $1.0\text{ mm}$ là sụp mi nặng che lấp trục thị giác), hoặc độ chênh lệch giữa hai mắt $> 2.0\text{ mm}$. Cần đến bệnh viện mắt để kiểm tra cơ nâng mi.
+Cây quyết định phân tầng của RemiCare tuân thủ triết lý **Ưu tiên Bất đối xứng (Asymmetry-First)** kết hợp bảo vệ hình thái mắt một mí sinh lý Á Đông và chốt chặn an toàn trục thị giác:
+
+- **TIER_A (Bình thường / Dáng mắt sinh lý Á Đông - Xanh lục):**
+  - Độ bất đối xứng hai bên $\Delta\text{MRD1} \le 1.5\text{ mm}$ VÀ $\min(\text{MRD1}) \ge 1.0\text{ mm}$.
+  - Không có phản xạ nhướng mày bù trừ khi bờ mi ở mức thấp ($\Delta\text{Brow} \le 8.0\text{ px}$ hoặc $\min(\text{MRD1}) \ge 2.0\text{ mm}$).
+  - *Ý nghĩa y học:* Trục thị giác hoàn toàn thông thoáng; người có dáng mắt hẹp hoặc mắt một mí tự nhiên không bị báo động giả.
+- **TIER_B (Nghi ngờ sụp mi nhẹ / Bất đối xứng ranh giới - Vàng hổ phách):**
+  - Bất đối xứng ranh giới: $1.5\text{ mm} < \Delta\text{MRD1} \le 2.0\text{ mm}$;
+  - HOẶC sụp mi ranh giới có phản xạ co cơ trán nâng mi bù trừ: $\Delta\text{Brow} > 8.0\text{ px}$ VÀ $\min(\text{MRD1}) < 2.0\text{ mm}$;
+  - HOẶC mất phản xạ ánh sáng do điều kiện chiếu sáng tự nhiên thiếu đèn flash (`NOT_VISIBLE_QUALITY` / `INDETERMINATE`).
+  - *Ý nghĩa y học:* Ghi nhận chênh lệch nhẹ hoặc dấu hiệu mỏi cơ nâng mi bù trừ; khuyến nghị tự theo dõi thêm.
+- **TIER_C (Nguy cơ cao / Khuyến nghị sớm khám chuyên khoa - Đỏ san hô):**
+  - **Bất đối xứng rõ rệt:** $\Delta\text{MRD1} > 2.0\text{ mm}$ vượt ngưỡng an toàn lâm sàng;
+  - **Chốt chặn ngoại lệ che phủ:** $\min(\text{MRD1}) < 1.0\text{ mm}$ (kể cả khi $\Delta\text{MRD1} \le 1.5\text{ mm}$);
+  - **Che lấp hoàn toàn phản quang / trục thị giác:** $\text{MRD1} \le 0\text{ mm}$ hoặc cờ giải phẫu `OCCLUDED_BY_LID`;
+  - **Chốt chặn sụp một mắt khi có flash (Unilateral Occlusion Guard):** Một bên mắt bắt được ánh phản xạ rõ nét (`SUCCESS`) nhưng bên đối diện hoàn toàn mất phản xạ và khe mi hẹp nghiêm trọng ($\text{PFH} < 5.0\text{ mm}$ hoặc $\text{MRD1} \le 0.5\text{ mm}$) $\rightarrow$ Lập tức phân tầng TIER_C thay vì hạ về Tier B.
+  - *Ý nghĩa y học:* Bờ mi sa trễ che phủ đồng tử hoặc mất cân đối nghiêm trọng; cần sớm đến cơ sở y tế chuyên khoa mắt để được thăm khám trực tiếp.
 
 ---
 
-## 3. DANH MỤC MÔ HÌNH AI & THUẬT TOÁN (AI MODELS & PROCESSING)
+## 3. DANH MỤC MÔ HÌNH AI & THUẬT TOÁN (AI & COMPUTER VISION ENGINE)
+
+Hệ thống tích hợp chuỗi mô hình học sâu và thuật toán thị giác máy tính chuyên sâu, tối ưu hóa để chạy trực tiếp trên bộ nhớ đệm RAM (In-Memory Zero-Retention):
 
 | Tên mô hình / Thuật toán | Loại công nghệ | Vai trò trong hệ thống | Đầu vào $\rightarrow$ Đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MediaPipe Face Mesh** | Deep Learning (Google) | Trích xuất 468 mốc khuôn mặt và **71 mốc chuyên dụng vùng mắt** | Ảnh khuôn mặt $\rightarrow$ Tọa độ 3D mi mắt, mống mắt, chân mày |
+| **Dual-Pipeline Input Router** | Heuristic & Computer Vision | Tự động phân loại ảnh toàn mặt (`FULL_FACE`) và ảnh crop cận cảnh 2 mắt (`DUAL_EYE_CROP`) | Tệp ảnh tải lên $\rightarrow$ Luồng pipeline xử lý tối ưu |
+| **Synthetic Canvas Injection** | Computer Vision Transformation | Ghép ảnh crop 2 mắt vào khung canvas giả lập $640 \times 480$ chuẩn nhân trắc học, giúp MediaPipe nhận diện hoàn hảo | ROI 2 mắt $\rightarrow$ Khung hình hợp lệ cho Face Mesh |
+| **CV Limbus Refinement (`refine_iris_limbus_cv`)** | Toán tử Gradient Hướng kính Daugman trên Green Channel | Tinh chỉnh rìa mống mắt dọc kinh tuyến ngang, loại trừ vùng mi trên ($\sin\theta > -0.4$), triệt tiêu sai số lông mi và nếp mí | Ảnh ROI mắt $\rightarrow$ Tâm mống mắt & HVID chính xác (sai số $< 5.5\%$) |
+| **MediaPipe Face Mesh (Iris-Refined)** | Deep Learning (Google) | Trích xuất 478 mốc khuôn mặt, 71 mốc viền mắt và mốc mống mắt cận sub-pixel | Ảnh khuôn mặt $\rightarrow$ Tọa độ 3D mi mắt, mống mắt, chân mày |
+| **Purkinje Glint Detector & Fallback Engine** | Morphology, Contour & Multi-stage Fallback | Phát hiện đốm phản xạ giác mạc Purkinje I (tỷ lệ trục $\le 2.5$, tương phản $\ge 1.15$). Dự phòng tâm đồng tử / mống mắt khi chói lóa. **Triệt tiêu chấm đỏ phản quang giả (`corneal_reflex = None`)** khi mi mắt che lấp | ROI mống mắt $\rightarrow$ Tọa độ phản xạ thật hoặc mốc tham chiếu dự phòng minh bạch |
+| **Unilateral Occlusion Guard** | Clinical Safeguard Logic | Chốt chặn an toàn phát hiện sụp mi nặng một bên làm mất phản xạ khi mắt đối diện có flash rõ | Trạng thái phản quang 2 mắt $\rightarrow$ Kích hoạt `OCCLUDED_BY_LID` $\rightarrow$ TIER_C |
+| **Exif & 2D FFT Orientation Engine** | Xử lý Tín hiệu Số & Phổ Fourier | Tự động phát hiện góc xoay và đảo chiều ảnh đúng hướng trước khi đo | Ma trận ảnh $\rightarrow$ Ảnh đã xoay thẳng đứng sinh lý |
 | **ResNet-18 Deep CNN** | Convolutional Neural Network (PyTorch) | Phân loại lác mắt dựa trên ảnh cắt vùng mắt có ánh phản xạ | Ảnh mắt có đèn Flash $\rightarrow$ Nhãn: Bình thường / Nghi ngờ lác |
-| **Ellipse Fitting Algorithm** | Computer Vision (OpenCV) | Khớp đường bao elip mống mắt chính xác đến cấp độ sub-pixel | Các điểm mốc mống mắt $\rightarrow$ Tâm đồng tử & Đường kính mống mắt (pixel) |
-| **Trajectory Consensus Model** | Computer Vision & Signal Processing | Theo dõi vector chuyển động của nhãn cầu qua từng khung hình video | Video 10-15 FPS $\rightarrow$ Tốc độ & Biên độ chuyển động định vị mắt |
-| **Head Pose & EAR Calculator** | Phép chiếu phối cảnh PnP & Hình học | Bộ lọc chất lượng ảnh (Quality Gate) | Điểm mốc khuôn mặt $\rightarrow$ Góc nghiêng đầu ($^\circ$) & Độ mở mắt (EAR) |
+| **Ellipse Fitting Algorithm** | Computer Vision (OpenCV) | Khớp đường bao elip mống mắt và đồng tử chính xác sub-pixel | Các điểm mốc $\rightarrow$ Tâm đồng tử & Bán kính (pixel) |
+| **Trajectory Consensus Model** | Computer Vision & Signal Processing | Theo dõi vector chuyển động của nhãn cầu qua từng khung hình video | Video 10-15 FPS $\rightarrow$ Tốc độ & Biên độ chuyển động định vị |
+| **Head Pose 3D & EAR Gate** | Phép chiếu phối cảnh solvePnP & Hình học | Bộ lọc chất lượng ảnh chuyên sâu (Quality Gate) | Điểm mốc khuôn mặt $\rightarrow$ Góc xoay 3D ($^\circ$) & Độ mở mắt (EAR) |
 
 ---
 
 ### Bộ lọc chất lượng ảnh (Quality Gate - Bảo vệ độ chính xác)
 Trước khi đưa ảnh vào phân tích sâu, thuật toán tự động kiểm tra nghiêm ngặt:
-1. **Góc nghiêng đầu (Head Pose):** Góc quay trái/phải (*Yaw*) $\le 12^\circ$, ngửa/cúi (*Pitch*) $\le 12^\circ$, nghiêng (*Roll*) $\le 8^\circ$.
+1. **Góc nghiêng đầu 3D (Head Pose solvePnP):** Góc quay trái/phải (*Yaw*) $\le 10^\circ$, ngửa/cúi (*Pitch*) $\le 10^\circ$, nghiêng (*Roll*) $\le 5^\circ$ (kiểm soát chặt Roll để tránh sai số $\Delta\text{MRD1}$).
 2. **Độ mở mắt (Eye Aspect Ratio - EAR):** Yêu cầu $\text{EAR} > 0.15$ (đảm bảo mắt mở tự nhiên, không nhắm mắt hoặc chớp mắt dở dang).
-3. **Độ phân giải:** Vùng khuôn mặt đạt tối thiểu $100 \times 100\text{ pixels}$.
-4. **Độ sáng:** Cân bằng ánh sáng hai bên mặt, không bị lóa hoặc quá tối.
+3. **Độ phân giải & Thước đo:** Vùng khuôn mặt đạt tối thiểu $100 \times 100\text{ px}$, đường kính mống mắt ngang $\ge 30\text{ px}$.
+4. **Độ sắc nét & Chiếu sáng:** Phương sai Laplacian $\ge 50.0$, độ sáng trung bình $40 \le \bar{I} \le 220$, tỷ lệ lóa sáng bão hòa $< 15\%$. Trao đổi và sửa xoay tự động bằng Exif/FFT.
 
 ---
 
@@ -96,14 +118,14 @@ graph TD
     FE["Frontend Hợp Nhất (React 19 + Vite + Tailwind CSS)"]
 
     subgraph Backend_Services["Hệ Thống Microservices (Python FastAPI)"]
-        BE_Ptosis["Ptosis Service (Port 8000)<br>• Đo MRD1 & Bất đối xứng mi<br>• MediaPipe Face Mesh & OpenCV"]
+        BE_Ptosis["Ptosis Service (Port 8000)<br>• Đo MRD1, PFH, ΔMRD1 & Asymmetry-First Triage<br>• MediaPipe Face Mesh & CV Limbus Refinement"]
         BE_Hirschberg["Hirschberg Service (Port 8001)<br>• Sàng lọc lác mắt qua ảnh Flash<br>• PyTorch ResNet-18 (eye_disease_model)"]
         BE_CoverTest["Cover Test Service (Port 8002)<br>• Sàng lọc lác động học qua Video<br>• Phân tích quỹ đạo chuyển động mắt"]
     end
 
     Client --> CDN
     CDN --> FE
-    FE -->|"POST /api/v1/analyze/single"| BE_Ptosis
+    FE -->|"POST /api/v1/screening/analyze"| BE_Ptosis
     FE -->|"POST /predict"| BE_Hirschberg
     FE -->|"POST /api/cover-test/analyze"| BE_CoverTest
 ```
@@ -119,7 +141,8 @@ graph TD
 | | **MediaPipe Tasks Vision** | 0.10.x | Tiền xử lý khung hình camera trực tiếp trên trình duyệt |
 | | **Lucide React** | 1.16.x | Bộ icon giao diện y tế hiện đại, trực quan |
 | **Backend Ptosis** | **FastAPI** + **Uvicorn** | Python 3.10+ | REST API hiệu năng cao đo đạc hình thái mí mắt (Port 8000) |
-| | **MediaPipe** + **OpenCV** | 0.10.x / 4.8+ | Trích xuất 478 mốc khuôn mặt, khớp elip mống mắt |
+| | **MediaPipe** + **OpenCV** | 0.10.x / 4.8+ | Trích xuất 478 mốc khuôn mặt, Daugman Limbus Refinement |
+| | **Quality Gate & Guards** | Python 3.12 | 218 bài test tự động; Unilateral Occlusion Guard & Zero-Retention |
 | **Backend Hirschberg** | **PyTorch** | 2.0+ (CPU) | Chạy mạng nơ-ron ResNet-18 phát hiện lác mắt qua ảnh (Port 8001) |
 | | **Asyncio Single-Lock** | Built-in | Khóa an toàn ngăn máy chủ CPU bị quá tải khi xử lý |
 | **Backend Cover Test** | **FastAPI** + **OpenCV Video**| Python 3.10+ | Xử lý chuỗi khung hình video bóc tách chuyển động mắt (Port 8002) |
