@@ -7,13 +7,14 @@
 import { useState, useCallback } from 'react';
 import type {
   MeasurementPayload,
+  ImageType,
   QualityRejection,
   ScreeningThresholds,
 } from '../types/api-contracts';
 
 export interface UseScreeningApiResult {
   isLoading: boolean;
-  analyzeImage: (file: File) => Promise<MeasurementPayload>;
+  analyzeImage: (file: File, imageType?: ImageType) => Promise<MeasurementPayload>;
   fetchThresholds: () => Promise<ScreeningThresholds>;
 }
 
@@ -22,11 +23,12 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, ''
 export function useScreeningApi(): UseScreeningApiResult {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const analyzeImage = useCallback(async (file: File): Promise<MeasurementPayload> => {
+  const analyzeImage = useCallback(async (file: File, imageType: ImageType = 'fullface'): Promise<MeasurementPayload> => {
     setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('image_type', imageType);
       formData.append('client_timestamp', new Date().toISOString());
 
       const response = await fetch(`${API_BASE_URL}/api/v1/screening/analyze`, {

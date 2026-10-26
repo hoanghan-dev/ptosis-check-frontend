@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.3+-646CFF?logo=vite)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Tests-11%20Passing-brightgreen?logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-31%20Passing-brightgreen?logo=vitest)](https://vitest.dev/)
 [![A11y](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA-success)]()
 
 Giao diện Web tương tác chất lượng cao phục vụ **Sàng lọc Hình thái Mi mắt (Ptosis Morphology Screening)** thuộc nền tảng **RemiCare**. Ứng dụng mang phong cách thiết kế **Clinical-Luxury** (sang trọng, y tế chuẩn mực, trực quan, hỗ trợ chế độ Sáng/Tối linh hoạt), kết nối liền mạch với Backend API để cung cấp kết quả phân tầng và trực quan hóa lớp phủ đo đạc thời gian thực.
@@ -80,7 +80,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 │ MỨC A: KHÔNG PHÁT HIỆN BẤT THƯỜNG (Tier A - Xanh ngọc)                 │
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Hai mắt có độ mở cân đối hoặc thuộc dáng mắt hẹp sinh lý Á Đông.     │
-│ • ΔMRD1 ≤ 1.5 mm VÀ min(MRD1) ≥ 1.0 mm VÀ ΔBrow ≤ 8 px.                 │
+│ • ΔMRD1 ≤ 1.5 mm VÀ min(MRD1) ≥ 1.0 mm (hoặc min ≥ 2.0 mm nếu có nhướng mày) │
 │ ➜ Khuyến nghị: Chưa ghi nhận dấu hiệu cần can thiệp. Theo dõi định kỳ.  │
 └────────────────────────────────────────────────────────────────────────┘
 
@@ -98,7 +98,7 @@ Trên giao diện chi tiết đo đạc ([`MeasurementDetails.tsx`](file:///d:/D
 ├────────────────────────────────────────────────────────────────────────┤
 │ • Bờ mi che phủ đáng kể trục thị giác hoặc bất đối xứng rõ rệt.        │
 │ • ΔMRD1 > 2.0 mm (Bất đối xứng rõ rệt vượt ngưỡng an toàn);            │
-│   HOẶC NGOẠI LỆ: min(MRD1) < 1.0 mm (kể cả khi ΔMRD1 ≈ 0);             │
+│   HOẶC NGOẠI LỆ: min(MRD1) ≤ 0 mm (kể cả khi ΔMRD1 ≈ 0);              │
 │   HOẶC bờ mi che lấp hoàn toàn phản quang giác mạc Purkinje.          │
 │ ➜ Khuyến nghị: Sớm đến cơ sở y tế chuyên khoa mắt để được thăm khám.   │
 └────────────────────────────────────────────────────────────────────────┘
@@ -198,7 +198,7 @@ npm run preview
 Frontend được trang bị bộ kiểm thử tự động với **Vitest** và **React Testing Library**:
 
 ```bash
-# Chạy toàn bộ 11 bài kiểm thử tự động của Frontend
+# Chạy toàn bộ 31 bài kiểm thử tự động của Frontend
 npx vitest run
 
 # Chạy kiểm thử ở chế độ theo dõi tương tác (Watch mode)

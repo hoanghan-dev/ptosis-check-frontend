@@ -4,6 +4,8 @@
  * Tuân thủ tuyệt đối G4: Không dùng từ ngữ thuộc danh mục cấm.
  */
 
+export type ImageType = 'fullface' | 'eye_crop';
+
 export type ScreeningTier = 'TIER_A' | 'TIER_B' | 'TIER_C';
 
 export type AsymmetryClassification =
@@ -15,11 +17,20 @@ export type MeasurementStatus =
   | 'VALID'
   | 'LOW_CONFIDENCE'
   | 'INVALID'
-  | 'NOT_DETECTABLE';
+  | 'NOT_DETECTABLE'
+  | 'MEASUREMENT_UNAVAILABLE'
+  | 'INDETERMINATE';
 
 export type ReferencePointUsed =
   | 'CORNEAL_LIGHT_REFLEX'
-  | 'PUPIL_CENTER_FALLBACK';
+  | 'PUPIL_CENTER_FALLBACK'
+  | 'NONE';
+
+export type ReflexVisibility =
+  | 'VISIBLE'
+  | 'OCCLUDED_BY_LID'
+  | 'NOT_VISIBLE_QUALITY'
+  | 'INDETERMINATE';
 
 export interface PointCoordinates {
   x: number;
@@ -38,6 +49,7 @@ export interface ImageQualityAudit {
   pose: PoseAudit;
   sharpness_score: number;
   mean_illumination: number;
+  audit_details?: Record<string, any> | null;
 }
 
 export interface EyeFloatPair {
@@ -53,17 +65,18 @@ export interface ScaleReference {
 }
 
 export interface SingleEyeMeasurement {
-  mrd1_px: number;
-  mrd1_mm: number;
-  mrd1_estimated_range: string;
+  mrd1_px?: number | null;
+  mrd1_mm?: number | null;
+  mrd1_estimated_range?: string | null;
   pfh_px?: number;
   pfh_mm?: number;
   reference_point_used: ReferencePointUsed;
-  reference_coordinates?: PointCoordinates;
-  eyelid_margin_point?: PointCoordinates;
+  reference_coordinates?: PointCoordinates | null;
+  eyelid_margin_point?: PointCoordinates | null;
   status: MeasurementStatus;
   confidence_score: number;
   warning_flags: string[];
+  reflex_visibility?: ReflexVisibility;
   // Các trường mở rộng từ V2 (Optional - tương thích ngược G5)
   glint_aspect_ratio?: number | null;
   pupil_diameter_px?: number | null;
@@ -76,8 +89,8 @@ export interface MeasurementsContainer {
 }
 
 export interface BilateralComparison {
-  delta_mrd1_mm: number;
-  signed_delta_mrd1_mm: number;
+  delta_mrd1_mm?: number | null;
+  signed_delta_mrd1_mm?: number | null;
   asymmetry_classification: AsymmetryClassification;
   delta_pfh_mm?: number;
   delta_brow_px?: number;
@@ -85,8 +98,8 @@ export interface BilateralComparison {
 }
 
 export interface EyeAnnotationPoints {
-  corneal_reflex: [number, number];
-  pupil_center?: [number, number];
+  corneal_reflex: [number, number] | null;
+  pupil_center?: [number, number] | null;
   iris_limbus_contour: [number, number][];
   upper_eyelid_contour: [number, number][];
   lower_eyelid_contour?: [number, number][];
