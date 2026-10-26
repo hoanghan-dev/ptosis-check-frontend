@@ -5,6 +5,7 @@
  * - Đường bờ mi trên nội suy B-spline (nét liền xanh ngọc #10B981)
  * - Đường bờ mi dưới (nét đứt cyan #38BDF8)
  * - Đốm phản quang Purkinje / Tâm đồng tử (chấm tròn đỏ #EF4444)
+ * - Phản quang bị che lấp / không khả dụng (vòng tròn đứt đoạn vàng cam #F59E0B kèm dấu hỏi ?)
  * - Mũi tên / đường đo MRD1 thẳng đứng (vàng hổ phách #F59E0B) kèm nhãn milimét
  * Tuân thủ G4: Tuyệt đối không dùng từ ngữ thuộc danh mục cấm.
  */
@@ -43,14 +44,27 @@ export function calculateEyesBoundingBox(
   imgHeight: number,
   paddingRatio: number = 0.45
 ): { x: number; y: number; width: number; height: number } {
-  const points: [number, number][] = [
+  const candidatePoints: ([number, number] | null | undefined)[] = [
     overlay.right_eye.corneal_reflex,
     overlay.left_eye.corneal_reflex,
+    overlay.right_eye.pupil_center,
+    overlay.left_eye.pupil_center,
+    ...overlay.right_eye.iris_limbus_contour,
+    ...overlay.left_eye.iris_limbus_contour,
     ...overlay.right_eye.upper_eyelid_contour,
     ...overlay.left_eye.upper_eyelid_contour,
     ...(overlay.right_eye.lower_eyelid_contour || []),
     ...(overlay.left_eye.lower_eyelid_contour || []),
   ];
+
+  const points = candidatePoints.filter(
+    (pt): pt is [number, number] =>
+      Boolean(pt && Array.isArray(pt) && pt.length >= 2 && !isNaN(pt[0]) && !isNaN(pt[1]))
+  );
+
+  if (points.length === 0) {
+    return { x: 0, y: 0, width: imgWidth, height: imgHeight };
+  }
 
   let minX = Infinity;
   let maxX = -Infinity;
@@ -90,7 +104,7 @@ function drawSingleEyeOverlay(
   const scale = 1.0;
 
   // 1. Vẽ viền mống mắt ngang (HVID Limbus Contour) - Nét đứt trắng (#FFFFFF)
-  if (options.showIrisLimbus && eye.iris_limbus_contour.length >= 2) {
+  if (options.showIrisLimbus && eye.iris_limbus_contour && eye.iris_limbus_contour.length >= 2) {
     const pt1 = eye.iris_limbus_contour[0];
     const pt2 = eye.iris_limbus_contour[1];
     const centerX = (pt1[0] + pt2[0]) / 2;
@@ -132,7 +146,7 @@ function drawSingleEyeOverlay(
   }
 
   // 3. Vẽ đường bờ mi trên (Upper Eyelid Margin) - Nét liền xanh ngọc (#10B981)
-  if (options.showUpperMargin && eye.upper_eyelid_contour.length > 1) {
+  if (options.showUpperMargin && eye.upper_eyelid_contour && eye.upper_eyelid_contour.length > 1) {
     ctx.save();
     ctx.beginPath();
     ctx.lineWidth = 2.4 * scale;
@@ -150,30 +164,69 @@ function drawSingleEyeOverlay(
   }
 
   // 4. Vẽ đốm phản quang Purkinje / Tâm đồng tử - Chấm tròn đỏ (#EF4444)
-  const reflexPt = eye.corneal_reflex;
-  if (options.showCornealReflex && reflexPt) {
-    ctx.save();
-    // Vòng phát sáng ngoại vi
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
-    ctx.arc(reflexPt[0], reflexPt[1], 5.5 * scale, 0, Math.PI * 2);
-    ctx.fill();
+  // Khi corneal_reflex là null, vẽ vòng tròn đứt đoạn màu vàng cam quanh tâm mống mắt kèm dấu hỏi (?)
+  if (options.showCornealReflex) {
+    const reflexPt = eye.corneal_reflex;
+    if (reflexPt) {
+      ctx.save();
+      // Vòng phát sáng ngoại vi
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+      ctx.arc(reflexPt[0], reflexPt[1], 5.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Điểm tâm đỏ sắc nét
-    ctx.beginPath();
-    ctx.fillStyle = '#EF4444';
-    ctx.arc(reflexPt[0], reflexPt[1], 2.5 * scale, 0, Math.PI * 2);
-    ctx.fill();
+      // Điểm tâm đỏ sắc nét
+      ctx.beginPath();
+      ctx.fillStyle = '#EF4444';
+      ctx.arc(reflexPt[0], reflexPt[1], 2.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Viền trắng bảo vệ tương phản
-    ctx.lineWidth = 1.0 * scale;
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.stroke();
-    ctx.restore();
+      // Viền trắng bảo vệ tương phản
+      ctx.lineWidth = 1.0 * scale;
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      // Phase C: Phản quang bị che lấp hoặc không khả dụng -> Vẽ vòng tròn đứt đoạn vàng cam kèm dấu hỏi (?)
+      const centerPt =
+        eye.pupil_center ||
+        (eye.iris_limbus_contour && eye.iris_limbus_contour.length >= 2
+          ? [
+              (eye.iris_limbus_contour[0][0] + eye.iris_limbus_contour[1][0]) / 2,
+              (eye.iris_limbus_contour[0][1] + eye.iris_limbus_contour[1][1]) / 2,
+            ]
+          : null);
+
+      if (centerPt) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([3 * scale, 2 * scale]);
+        ctx.lineWidth = 1.6 * scale;
+        ctx.strokeStyle = '#F59E0B';
+        const r = 9 * scale;
+        ctx.arc(centerPt[0], centerPt[1], r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Biểu tượng dấu hỏi chấm (?)
+        ctx.font = `bold ${Math.round(11 * scale)}px Inter, sans-serif`;
+        ctx.fillStyle = '#F59E0B';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('?', centerPt[0], centerPt[1]);
+        ctx.restore();
+      }
+    }
   }
 
   // 5. Vẽ mũi tên / thước đo MRD1 - Đường dọc vàng hổ phách (#F59E0B)
-  if (options.showMrd1Arrow && measurement.reference_coordinates && measurement.eyelid_margin_point) {
+  // Chỉ vẽ khi có đầy đủ mốc hợp lệ và mrd1_mm không null
+  if (
+    options.showMrd1Arrow &&
+    measurement.reference_coordinates &&
+    measurement.eyelid_margin_point &&
+    measurement.mrd1_mm !== null &&
+    measurement.mrd1_mm !== undefined
+  ) {
     const refX = measurement.reference_coordinates.x;
     const refY = measurement.reference_coordinates.y;
     const marginY = measurement.eyelid_margin_point.y;
@@ -248,36 +301,34 @@ export function drawAnnotatedCanvas(
   const naturalH = image.naturalHeight || image.height;
 
   // Xác định khung nhìn (toàn cảnh hoặc phóng to vùng mắt)
-  let srcX = 0;
-  let srcY = 0;
-  let srcW = naturalW;
-  let srcH = naturalH;
+  let sx = 0;
+  let sy = 0;
+  let sWidth = naturalW;
+  let sHeight = naturalH;
 
   if (options.zoomToEyes) {
     const bbox = calculateEyesBoundingBox(overlay, naturalW, naturalH);
-    srcX = bbox.x;
-    srcY = bbox.y;
-    srcW = bbox.width;
-    srcH = bbox.height;
+    sx = bbox.x;
+    sy = bbox.y;
+    sWidth = bbox.width;
+    sHeight = bbox.height;
   }
 
-  // Cài đặt độ phân giải nội bộ của canvas khớp với vùng nhìn
-  canvas.width = srcW;
-  canvas.height = srcH;
+  // Khớp kích thước canvas hiển thị theo tỷ lệ khung nhìn
+  canvas.width = sWidth;
+  canvas.height = sHeight;
 
-  // Xóa sạch canvas trước khi vẽ
-  ctx.clearRect(0, 0, srcW, srcH);
+  // Xóa và vẽ phần ảnh tương ứng
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
-  // 1. Vẽ ảnh gốc (cắt theo vùng nhìn nếu zoom)
-  ctx.drawImage(image, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
-
-  // Áp dụng dịch chuyển tọa độ nếu đang ở chế độ zoom
+  // Dịch chuyển ma trận tọa độ nếu đang ở chế độ zoomToEyes
   ctx.save();
   if (options.zoomToEyes) {
-    ctx.translate(-srcX, -srcY);
+    ctx.translate(-sx, -sy);
   }
 
-  // 2. Vẽ mắt phải (OD) và mắt trái (OS)
+  // Vẽ lớp phủ mắt phải (OD) và mắt trái (OS)
   drawSingleEyeOverlay(ctx, overlay.right_eye, measurements.right_eye_od, options, 'OD');
   drawSingleEyeOverlay(ctx, overlay.left_eye, measurements.left_eye_os, options, 'OS');
 
