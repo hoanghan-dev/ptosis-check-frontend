@@ -8,9 +8,11 @@ import React, { useState, useRef } from 'react';
 import type { DragEvent, ChangeEvent } from 'react';
 import { UploadCloud, Image as ImageIcon, AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { useImagePreValidation } from '../../hooks/useImagePreValidation';
+import type { ImageType } from '../../types/api-contracts';
 
 interface FileUploadZoneProps {
   selectedFile: File | null;
+  imageType?: ImageType;
   onFileSelect: (file: File) => void;
   onClearFile: () => void;
   validationError: string | null;
@@ -19,6 +21,7 @@ interface FileUploadZoneProps {
 
 export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   selectedFile,
+  imageType = 'fullface',
   onFileSelect,
   onClearFile,
   validationError,
@@ -26,10 +29,10 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { validateFile } = useImagePreValidation();
+  const { validateFile } = useImagePreValidation(imageType);
 
   const handleFileProcess = (file: File) => {
-    const result = validateFile(file);
+    const result = validateFile(file, imageType);
     if (!result.isValid) {
       setValidationError(result.errorMessage);
       return;
@@ -131,15 +134,22 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
             </div>
             <div>
               <p className="text-base font-medium text-[#00545D] dark:text-[#F9F8F2]">
-                Kéo thả ảnh chụp khuôn mặt vào đây hoặc <span className="text-[#00AB9B] font-semibold underline decoration-[#00AB9B]/50 underline-offset-2">duyệt từ thiết bị</span>
+                {imageType === 'eye_crop'
+                  ? 'Kéo thả ảnh cận cảnh 2 mắt vào đây hoặc '
+                  : 'Kéo thả ảnh chụp toàn mặt vào đây hoặc '}
+                <span className="text-[#00AB9B] font-semibold underline decoration-[#00AB9B]/50 underline-offset-2">duyệt từ thiết bị</span>
               </p>
               <p className="text-xs text-[#267A78] dark:text-[#6FB4AF] mt-1.5">
-                Hỗ trợ định dạng: JPEG, PNG, WebP, HEIC (Dung lượng: 50KB – 15MB)
+                Hỗ trợ định dạng: JPEG, PNG, WebP, HEIC (Dung lượng: {imageType === 'eye_crop' ? '10KB' : '50KB'} – 15MB)
               </p>
             </div>
             <div className="flex items-center space-x-2 text-[11px] text-[#267A78] dark:text-[#6FB4AF] pt-2">
               <ImageIcon className="w-3.5 h-3.5 text-[#00AB9B]" />
-              <span>Chụp chính diện, mở mắt tự nhiên, đủ ánh sáng</span>
+              <span>
+                {imageType === 'eye_crop'
+                  ? 'Bao gồm trọn vẹn cả 2 mắt, giữ ảnh ngang thăng bằng, rõ nét'
+                  : 'Chụp chính diện, mở mắt tự nhiên, đủ ánh sáng'}
+              </span>
             </div>
           </div>
         )}

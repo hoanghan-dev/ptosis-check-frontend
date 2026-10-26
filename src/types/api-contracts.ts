@@ -4,6 +4,8 @@
  * Tuân thủ tuyệt đối G4: Không dùng từ ngữ thuộc danh mục cấm.
  */
 
+export type ImageType = 'fullface' | 'eye_crop';
+
 export type ScreeningTier = 'TIER_A' | 'TIER_B' | 'TIER_C';
 
 export type AsymmetryClassification =
@@ -75,6 +77,10 @@ export interface SingleEyeMeasurement {
   confidence_score: number;
   warning_flags: string[];
   reflex_visibility?: ReflexVisibility;
+  // Các trường mở rộng từ V2 (Optional - tương thích ngược G5)
+  glint_aspect_ratio?: number | null;
+  pupil_diameter_px?: number | null;
+  fallback_type?: 'NONE' | 'PUPIL_DETECTOR' | 'IRIS_CENTER' | null;
 }
 
 export interface MeasurementsContainer {

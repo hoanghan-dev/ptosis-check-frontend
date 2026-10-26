@@ -13,6 +13,7 @@ import {
   Camera,
   CheckCircle,
   AlertCircle,
+  Info,
 } from 'lucide-react';
 import type { MeasurementPayload, SingleEyeMeasurement } from '../../types/api-contracts';
 
@@ -20,12 +21,55 @@ interface MeasurementDetailsProps {
   payload: MeasurementPayload;
 }
 
+const WARNING_FLAG_LABELS: Record<string, { label: string; description: string }> = {
+  REFLEX_FALLBACK_TO_PUPIL: {
+    label: 'Dự phòng tâm đồng tử',
+    description: 'Không có phản xạ đèn rõ nét; hệ thống dùng tâm đồng tử ước lượng làm mốc thay thế.',
+  },
+  REFLEX_FALLBACK_TO_IRIS_CENTER: {
+    label: 'Dự phòng tâm mống mắt',
+    description: 'Sử dụng tâm mống mắt hình học do điều kiện ánh sáng hạn chế.',
+  },
+  HVID_ASYMMETRY_EXCEEDED: {
+    label: 'Chênh lệch kích thước mống mắt',
+    description: 'Độ chênh lệch đường kính ngang mống mắt hai bên vượt quá 15%; số đo có thể bị ảnh hưởng bởi góc chụp nghiêng.',
+  },
+  AMBIGUOUS_MULTI_REFLECTION: {
+    label: 'Đa phản xạ ánh sáng',
+    description: 'Môi trường có nhiều nguồn sáng phản chiếu cùng lúc lên bề mặt mắt.',
+  },
+  SCALE_FACTOR_OUTSIDE_EXPECTED_RANGE: {
+    label: 'Tỷ lệ quy đổi bất thường',
+    description: 'Hệ số mm/px nằm ngoài dải dự kiến, hãy kiểm tra lại khoảng cách chụp.',
+  },
+};
+
 export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload }) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const { measurements, bilateral_comparison, scale_reference, image_quality_audit } = payload;
   const od = measurements.right_eye_od;
   const os = measurements.left_eye_os;
+
+  const allWarningFlags = Array.from(
+    new Set([...(od.warning_flags || []), ...(os.warning_flags || [])])
+  );
+
+  const getReferencePointLabel = (eye: SingleEyeMeasurement) => {
+    if (eye.reference_point_used === 'CORNEAL_LIGHT_REFLEX') {
+      return 'Phản quang giác mạc Purkinje';
+    }
+    if (eye.reference_point_used === 'NONE') {
+      return 'Không có mốc hợp lệ';
+    }
+    if (eye.fallback_type === 'PUPIL_DETECTOR') {
+      return 'Tâm đồng tử dự phòng (OpenCV)';
+    }
+    if (eye.fallback_type === 'IRIS_CENTER') {
+      return 'Tâm mống mắt dự phòng (Hình học)';
+    }
+    return 'Tâm đồng tử dự phòng';
+  };
 
   const getStatusBadge = (singleEye: SingleEyeMeasurement) => {
     const { status, confidence_score: confidence, reflex_visibility, warning_flags, mrd1_mm } = singleEye;
@@ -84,19 +128,19 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
       case 'PHYSIOLOGICAL_SYMMETRY':
         return (
           <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
-            Đối xứng sinh lý (≤ 1.0 mm)
+            Đối xứng sinh lý (≤ 1.5 mm)
           </span>
         );
       case 'BORDERLINE_ASYMMETRY':
         return (
           <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-semibold">
-            Bất đối xứng ranh giới (1.0 - 1.5 mm)
+            Bất đối xứng ranh giới (1.5 - 2.0 mm)
           </span>
         );
       default:
         return (
           <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-800 dark:text-rose-300 text-[11px] font-semibold">
-            Bất đối xứng đáng chú ý (&gt; 1.5 mm)
+            Bất đối xứng đáng chú ý (&gt; 2.0 mm)
           </span>
         );
     }
@@ -162,15 +206,18 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
                 </div>
               </div>
 
-              <div className="text-[11px] text-[#267A78] dark:text-[#6FB4AF] pt-1">
-                Mốc quang học:{' '}
-                <span className="font-semibold text-[#00545D] dark:text-[#F9F8F2]">
-                  {od.reference_point_used === 'CORNEAL_LIGHT_REFLEX'
-                    ? 'Phản quang giác mạc Purkinje'
-                    : od.reference_point_used === 'NONE'
-                    ? 'Không có mốc hợp lệ'
-                    : 'Tâm đồng tử dự phòng'}
+              <div className="text-[11px] text-[#267A78] dark:text-[#6FB4AF] pt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>
+                  Mốc quang học:{' '}
+                  <span className="font-semibold text-[#00545D] dark:text-[#F9F8F2]">
+                    {getReferencePointLabel(od)}
+                  </span>
                 </span>
+                {od.pupil_diameter_px && (
+                  <span className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">
+                    • Đường kính đồng tử: {od.pupil_diameter_px.toFixed(1)} px
+                  </span>
+                )}
               </div>
             </div>
 
@@ -203,15 +250,18 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
                 </div>
               </div>
 
-              <div className="text-[11px] text-[#267A78] dark:text-[#6FB4AF] pt-1">
-                Mốc quang học:{' '}
-                <span className="font-semibold text-[#00545D] dark:text-[#F9F8F2]">
-                  {os.reference_point_used === 'CORNEAL_LIGHT_REFLEX'
-                    ? 'Phản quang giác mạc Purkinje'
-                    : os.reference_point_used === 'NONE'
-                    ? 'Không có mốc hợp lệ'
-                    : 'Tâm đồng tử dự phòng'}
+              <div className="text-[11px] text-[#267A78] dark:text-[#6FB4AF] pt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>
+                  Mốc quang học:{' '}
+                  <span className="font-semibold text-[#00545D] dark:text-[#F9F8F2]">
+                    {getReferencePointLabel(os)}
+                  </span>
                 </span>
+                {os.pupil_diameter_px && (
+                  <span className="text-[10px] text-[#267A78] dark:text-[#6FB4AF]">
+                    • Đường kính đồng tử: {os.pupil_diameter_px.toFixed(1)} px
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -260,6 +310,37 @@ export const MeasurementDetails: React.FC<MeasurementDetailsProps> = ({ payload 
               </div>
             </div>
           </div>
+
+          {/* Cảnh báo thuật toán & Ghi chú xử lý (Warning Flags) */}
+          {allWarningFlags.length > 0 && (
+            <div className="p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/30 space-y-2.5">
+              <div className="flex items-center space-x-2 text-amber-800 dark:text-amber-300 font-bold">
+                <Info className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <span>Ghi Chú Kỹ Thuật & Cảnh Báo Thuật Toán</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                {allWarningFlags.map((flag) => {
+                  const meta = WARNING_FLAG_LABELS[flag] || {
+                    label: flag,
+                    description: 'Cảnh báo xử lý quang học từ hệ thống phân tích.',
+                  };
+                  return (
+                    <div
+                      key={flag}
+                      className="p-2.5 rounded-lg bg-white/80 dark:bg-[#071619]/80 border border-amber-500/20"
+                    >
+                      <div className="font-semibold text-amber-900 dark:text-amber-200 text-[11px]">
+                        {meta.label}
+                      </div>
+                      <div className="text-[10px] text-[#267A78] dark:text-[#6FB4AF] mt-0.5 leading-relaxed">
+                        {meta.description}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* 3. Kiểm định chất lượng ảnh (Quality Audit Summary) */}
           <div className="p-3.5 rounded-xl bg-[#E1F4F0]/20 dark:bg-[#122D32]/20 border border-[#B8E8DF]/60 dark:border-[#1A3F45]/60 flex flex-wrap items-center justify-between gap-3 text-[11px] text-[#267A78] dark:text-[#6FB4AF]">

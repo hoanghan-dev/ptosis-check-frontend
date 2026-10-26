@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 import type { ScreeningStep, ScreeningError } from './types/screening-state';
-import type { MeasurementPayload, QualityRejection } from './types/api-contracts';
+import type { ImageType, MeasurementPayload, QualityRejection } from './types/api-contracts';
 import { useScreeningApi } from './hooks/useScreeningApi';
 import { useTheme } from './hooks/useTheme';
 import { ConsentDialog } from './components/common/ConsentDialog';
@@ -26,6 +26,7 @@ export const App: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<ScreeningStep>('CONSENT');
   const [hasConsented, setHasConsented] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageType, setImageType] = useState<ImageType>('fullface');
   const [payload, setPayload] = useState<MeasurementPayload | null>(null);
   const [error, setError] = useState<ScreeningError | null>(null);
 
@@ -54,7 +55,7 @@ export const App: React.FC = () => {
     setError(null);
 
     try {
-      const result = await analyzeImage(selectedFile);
+      const result = await analyzeImage(selectedFile, imageType);
       setPayload(result);
       setCurrentStep('RESULT');
     } catch (err: unknown) {
@@ -164,6 +165,8 @@ export const App: React.FC = () => {
         {(currentStep === 'READY_TO_CAPTURE' || currentStep === 'ANALYZING') && (
           <CaptureScreen
             selectedFile={selectedFile}
+            imageType={imageType}
+            onImageTypeChange={setImageType}
             onFileSelect={handleFileSelect}
             onClearFile={handleClearFile}
             onSubmit={handleSubmitScreening}

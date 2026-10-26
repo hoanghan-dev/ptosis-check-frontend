@@ -9,7 +9,6 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
 import { ResultScreen } from '../components/result/ResultScreen';
 import type { MeasurementPayload } from '../types/api-contracts';
 
